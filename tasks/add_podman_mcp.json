@@ -1,0 +1,58 @@
+{
+  "name": "add_podman_mcp",
+  "description": "Add/register a podman-isolated MCP server (e.g. taskmaster-mcp for high-level /task, godaddy-mcp, or any custom containerized connector) into the Super Grok environment using ONLY the desired effect: server name + podman image + optional envs. No need to manually edit toml, write launch scripts, or recall podman run flags. The TASK deduces the full stdio config using the real buildPodmanStdioConfig logic, updates ~/.grok/config.toml under [mcp_servers.<name>], and makes it immediately discoverable via search_tool + use_tool. Reusable for any podman MCP.",
+  "params_schema": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "description": "Logical MCP server name, e.g. 'taskmaster', 'godaddy', 'my-custom-connector'"
+    },
+    "image": {
+      "type": "string",
+      "required": true,
+      "description": "Full podman image ref, e.g. 'localhost/taskmaster-mcp:latest' or 'localhost/godaddy-mcp:latest'"
+    },
+    "env_vars": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "required": false,
+      "description": "List of env var strings like 'GODADDY_API_KEY=xxx' or 'GITHUB_TOKEN=...'. Passed through to podman -e."
+    },
+    "extra_run_args": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "required": false,
+      "description": "Extra podman run args e.g. ['-v', '/home/nicsins/.grok/tasks:/tasks']"
+    }
+  },
+  "steps": [
+    {
+      "action": "build_podman_stdio_config",
+      "description": "Invoke real logic from claude-code/src/services/mcp/podman.ts : buildPodmanStdioConfig or buildPodmanStdioConfigFromAdd using the image + envs + extra args. Produces {command: 'podman', args: ['run', '-i', '--rm', ... , image]}",
+      "uses": "podman service code"
+    },
+    {
+      "action": "update_grok_config",
+      "description": "Persist the generated stdio server config under [mcp_servers.<name>] in ~/.grok/config.toml (local scope). Use direct file write or search_replace on the toml for the section with command/args/env.",
+      "path": "~/.grok/config.toml"
+    },
+    {
+      "action": "verify_registration",
+      "description": "Call search_tool with query matching the new name (e.g. 'taskmaster execute') to confirm the tools like taskmaster__list_available_tasks, taskmaster__save_task_definition etc. are now surfaced. Optionally run podman test or the /task sugar."
+    },
+    {
+      "action": "post_add_note",
+      "description": "Optionally use linear or github to log the MCP registration as a completed task."
+    }
+  ],
+  "version": "1.0.0",
+  "requires_mcps": [],
+  "storage": "local + github:nicsins/grok-super-taskmaster",
+  "desired_effect_style": true,
+  "example_invocation": "{add_podman_mcp; name=taskmaster; image=localhost/taskmaster-mcp:latest; env_vars=[\"GODADDY_API_KEY=...\",\"GITHUB_TOKEN=...\"]}",
+  "podman_isolated": true
+}

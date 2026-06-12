@@ -1,0 +1,69 @@
+{
+  "name": "forge_new_connector",
+  "description": "Forge (generate + register) a brand new connector for Grok/Super Grok using ONLY the desired effect: connector name + short description + resource_type (web_api/filesystem/etc) + auth + actions. Invokes the real production ConnectorForge engine at workdir/Projects/Connector_Forge/connector_forge.py (interactive_forge or direct class API). Produces generated code (filled from templates), metadata.json, updates connector_index.json, places in generated_connectors/. No hand-writing of Connector.ts/py, no manual index. Optional follow-up publish via publish_connector_to_github or add as podman MCP.",
+  "params_schema": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "description": "Connector name e.g. 'LinearPrivateTasks' or 'LocalDragonscaleLedger'"
+    },
+    "description": {
+      "type": "string",
+      "required": true,
+      "description": "Short description of what the connector does and exposes."
+    },
+    "resource_type": {
+      "type": "string",
+      "required": false,
+      "description": "web_api | filesystem | database | app | other . Defaults to web_api."
+    },
+    "auth_method": {
+      "type": "string",
+      "required": false,
+      "description": "api_key | oauth2 | basic_auth | service_account | none | other"
+    },
+    "base_url": {
+      "type": "string",
+      "required": false,
+      "description": "Base API URL or root if applicable."
+    },
+    "supported_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "required": false,
+      "description": "Comma sep or list: read,write,search,create,execute etc."
+    },
+    "non_interactive": {
+      "type": "boolean",
+      "required": false,
+      "description": "If true, bypass input() and use provided params only. For full TASK automation."
+    }
+  },
+  "steps": [
+    {
+      "action": "invoke_connector_forge",
+      "description": "cd to workdir/Projects/Connector_Forge ; run python connector_forge.py or directly: from connector_forge import ConnectorForge; forge=ConnectorForge(); out = forge.interactive_forge() but with params injected (monkey or CLI args extension). Or extend to accept --name --desc etc for non-interactive. Real execution of the forge engine produces files + index update.",
+      "uses": "real python at workdir/Projects/Connector_Forge/connector_forge.py + templates/"
+    },
+    {
+      "action": "post_forge_steps",
+      "description": "Review generated: list files in output_dir. Optionally run tests if present. Update any SKILLS_CATALOG or bundled."
+    },
+    {
+      "action": "optionally_publish_or_add_mcp",
+      "description": "If podmanized, call add_podman_mcp TASK. Else call publish_connector_to_github TASK on the generated dir. Chainable."
+    },
+    {
+      "action": "track_in_linear",
+      "description": "Call track_task_in_linear with title 'Forged connector: <name>' and details."
+    }
+  ],
+  "version": "1.0.0",
+  "requires_mcps": [],
+  "storage": "local + github:nicsins/grok-super-taskmaster",
+  "desired_effect_style": true,
+  "example_invocation": "{forge_new_connector; name=TaskmasterGithubBridge; description=Bridge between taskmaster TASKs and github file ops for auto publish; resource_type=web_api; auth_method=none; supported_actions=[\"publish_task_defs\",\"search_tasks\"]; non_interactive=true}",
+  "ties_to": "Connector_Forge/connector_forge.py , templates in same dir, connector_index.json"
+}

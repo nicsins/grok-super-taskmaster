@@ -1,0 +1,75 @@
+{
+  "name": "track_task_in_linear",
+  "description": "Track a high-level TASK execution or project item as a Linear issue or milestone using ONLY the desired effect: task name or title + optional description/details. No need to recall save_issue fields or separate create + comment. The TASK deduces team/project (or uses provided), calls grok_com_linear__save_issue (or save_milestone), attaches steps/log as description or follow-up save_comment, sets labels like 'taskmaster', priority etc. Reusable for any automated flow completion reporting.",
+  "params_schema": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "description": "Issue title, e.g. 'Completed connect_domain for example.com' or 'Forge and publish new foo connector'"
+    },
+    "description": {
+      "type": "string",
+      "required": false,
+      "description": "Markdown body. Can include {{task_steps}} or full execution log. Use literal newlines."
+    },
+    "team": {
+      "type": "string",
+      "required": false,
+      "description": "Linear team name/id, defaults to primary or 'me' context"
+    },
+    "project": {
+      "type": "string",
+      "required": false,
+      "description": "Linear project/slug to attach to"
+    },
+    "milestone": {
+      "type": "string",
+      "required": false,
+      "description": "Optional milestone name to associate or create via save_milestone"
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "required": false,
+      "description": "Labels e.g. ['taskmaster', 'automation', 'connector']"
+    },
+    "priority": {
+      "type": "number",
+      "required": false,
+      "description": "0-4 priority"
+    },
+    "state": {
+      "type": "string",
+      "required": false,
+      "description": "e.g. 'In Progress', 'Done'"
+    }
+  },
+  "steps": [
+    {
+      "action": "prepare_linear_payload",
+      "description": "Map TASK params to Linear fields. If milestone provided and not exist, first call grok_com_linear__save_milestone."
+    },
+    {
+      "action": "save_issue_via_linear_mcp",
+      "description": "Invoke grok_com_linear__save_issue with title, description, team, project, labels, priority, state, milestone. Real creation/update in Linear. Returns the issue id/key.",
+      "mcp_server": "grok_com_linear",
+      "tool": "grok_com_linear__save_issue"
+    },
+    {
+      "action": "attach_execution_log",
+      "description": "If detailed steps from original TASK run available, use grok_com_linear__save_comment with issueId + body containing the log. Or create document via save_document."
+    },
+    {
+      "action": "verify_tracking",
+      "description": "Call grok_com_linear__list_issues or get_issue using the returned id to confirm tracking entry exists with correct data."
+    }
+  ],
+  "version": "1.0.0",
+  "requires_mcps": ["grok_com_linear"],
+  "storage": "local + github:nicsins/grok-super-taskmaster",
+  "desired_effect_style": true,
+  "example_invocation": "{track_task_in_linear; title=Published new connector via TASKs; description=Full run of forge_new_connector + publish...; labels=[\"automation\"]; state=Done}",
+  "symbiotic": "Perfect follow-up to execute_task, forge_new_connector, publish_connector_to_github."
+}

@@ -1,0 +1,59 @@
+{
+  "name": "generate_report_with_gamma",
+  "description": "Generate a professional report (or Gamma-style presentation/doc) using ONLY the desired effect: report topic/query + design_type (report). Leverages real Canva MCP generate capabilities for high-quality visual + text reports (charts, structured content). No manual design steps, no choosing templates first. The TASK calls grok_com_canva__generate-design with design_type='report' (or 'presentation'/'doc' for variants), passes detailed query, optional brand_kit, length. Returns design candidates. Follow-up can use create-design-from-candidate + editing tools. Reusable for any 'produce a report on X' need.",
+  "params_schema": {
+    "query": {
+      "type": "string",
+      "required": true,
+      "description": "Detailed description of the report content and intent, e.g. 'Q2 2026 connector ecosystem status and taskmaster adoption metrics with charts'"
+    },
+    "design_type": {
+      "type": "string",
+      "required": false,
+      "description": "Canva design type: 'report' (default, data viz report), 'presentation', 'doc', 'proposal' etc. See canva generate-design enum."
+    },
+    "length": {
+      "type": "string",
+      "required": false,
+      "description": "short | balanced | comprehensive"
+    },
+    "brand_kit_id": {
+      "type": "string",
+      "required": false,
+      "description": "Optional brand kit id for on-brand output. First list-brand-kits if needed."
+    },
+    "asset_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "required": false
+    }
+  },
+  "steps": [
+    {
+      "action": "prepare_canva_generate_call",
+      "description": "Map query + design_type='report' (or override) + length + brand to the exact params for generate."
+    },
+    {
+      "action": "generate_design_via_canva_mcp",
+      "description": "Call grok_com_canva__generate-design with query, design_type, length, brand_kit_id, user_intent='Generate professional report via TASK generate_report_with_gamma'. This produces candidates (job_id + candidate_ids). Real Canva generation, not sim.",
+      "mcp_server": "grok_com_canva",
+      "tool": "grok_com_canva__generate-design"
+    },
+    {
+      "action": "convert_to_editable_if_needed",
+      "description": "Optionally follow with grok_com_canva__create-design-from-candidate using job_id + chosen candidate_id to persist to user's Canva account. Then editing_transaction tools for tweaks."
+    },
+    {
+      "action": "log_report_generation",
+      "description": "Use track_task_in_linear or github comment to record that the report TASK completed, with links to the design."
+    }
+  ],
+  "version": "1.0.0",
+  "requires_mcps": ["grok_com_canva"],
+  "storage": "local + github:nicsins/grok-super-taskmaster",
+  "desired_effect_style": true,
+  "example_invocation": "{generate_report_with_gamma; query=Status of all TASK definitions and podman MCPs in grok-super-taskmaster; design_type=report; length=balanced}",
+  "note": "Gamma-like output achieved via Canva's report generation which produces polished docs/presentations suitable for sharing as 'Gamma' style decks. Uses real generate-design tool."
+}

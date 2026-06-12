@@ -1,0 +1,65 @@
+{
+  "name": "publish_connector_to_github",
+  "description": "Publish a connector (Python/TS code, metadata, docs, tests, Dockerfile) from local path or generated dir to the grok-super-taskmaster (or any) GitHub repository using ONLY the desired effect: connector identifier + target repo + branch. No manual git, no multiple create calls needed. Internally uses the real grok_com_github__push_files (or create_or_update_file in loop) to atomically commit multiple files under connectors/ or connectors/<name>/ . Automatically handles new vs update via content, generates commit message. Ties directly to Connector Forge output for end-to-end 'forge then publish'.",
+  "params_schema": {
+    "connector_name": {
+      "type": "string",
+      "required": true,
+      "description": "Name of connector to publish, e.g. 'taskmaster-mcp' or 'my-new-api-connector'. Used to locate local files or generated dir."
+    },
+    "target_owner": {
+      "type": "string",
+      "required": false,
+      "description": "GitHub owner, defaults to 'nicsins'"
+    },
+    "target_repo": {
+      "type": "string",
+      "required": false,
+      "description": "GitHub repo name, defaults to 'grok-super-taskmaster'"
+    },
+    "branch": {
+      "type": "string",
+      "required": false,
+      "description": "Branch, defaults to 'main'"
+    },
+    "source_dir": {
+      "type": "string",
+      "required": false,
+      "description": "Optional explicit local source dir containing the connector files to publish (e.g. workdir/taskmaster-mcp or Connector_Forge/generated_connectors/foo)"
+    },
+    "file_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "required": false,
+      "description": "Optional explicit list of relative file paths to include; if omitted, auto-discovers common connector files (server.py, Dockerfile, README.md, *.json, etc.)"
+    }
+  },
+  "steps": [
+    {
+      "action": "locate_connector_artifacts",
+      "description": "Resolve source_dir from param or standard locations (Connector_Forge/generated_*, workdir/*-mcp, .grok/bundled). Collect all relevant files: code, Dockerfiles, README, metadata, index updates."
+    },
+    {
+      "action": "prepare_file_payloads",
+      "description": "Read file contents. Prefix paths under 'connectors/<connector_name>/' or 'mcps/<name>/' or root 'tasks/' for defs. Build array of {path, content} for push."
+    },
+    {
+      "action": "push_via_github_mcp",
+      "description": "Call grok_com_github__push_files (preferred for multi-file atomic) or sequence of grok_com_github__create_or_update_file . Provide owner, repo, branch, files[], message='Publish connector <name> via TASK publish_connector_to_github'. Real GitHub write, not simulated.",
+      "mcp_server": "grok_com_github",
+      "tool": "grok_com_github__push_files"
+    },
+    {
+      "action": "verify_publish",
+      "description": "Use grok_com_github__get_file_contents on the pushed paths or grok_com_github__search_code to confirm. Optionally create PR if branch protection."
+    }
+  ],
+  "version": "1.0.0",
+  "requires_mcps": ["grok_com_github"],
+  "storage": "local + github:nicsins/grok-super-taskmaster",
+  "desired_effect_style": true,
+  "example_invocation": "{publish_connector_to_github; connector_name=taskmaster-mcp; target_repo=grok-super-taskmaster}",
+  "symbiotic": "Often follows forge_new_connector or after local edits to a podman MCP."
+}
