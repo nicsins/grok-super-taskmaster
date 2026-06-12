@@ -1,0 +1,52 @@
+{
+  "name": "build_63acre_datacenter",
+  "version": "0.1.0",
+  "description": "Plan, design, and execute build of datacenter infrastructure on 63 acre plot. Integrate with dragonscale for distributed compute/ledger nodes. Prioritize power, networking, cooling for AI hosting. Monetize via hosting claims/contractor backends, public AI nodes, or dragonscale ledger services. Use no-proof-deployer for any on-site control dashboards. Tie to grokzilla.site for monitoring.",
+  "required_params": ["plot_details"],
+  "optional_params": ["power_budget_mw", "node_count", "budget_usd"],
+  "storage": "github:repo/tasks + local ~/.grok/tasks/",
+  "steps": [
+    {
+      "id": "1",
+      "action": "survey_and_plan",
+      "description": "Use github to create/update datacenter repo with site plans, dragonscale node specs. Search existing dragonscale/ for ledger/temporal fabric integration. Generate Gamma doc for high-level design.",
+      "mcp": "grok_com_github",
+      "tool": "create_repository or push_files",
+      "params": {"repo_name": "63acre-datacenter", "description": "63 acre datacenter build with dragonscale integration"}
+    },
+    {
+      "id": "2",
+      "action": "infra_design",
+      "description": "Design power/network using dragonscale nodes. Create Linear issues for phases (site prep, power, servers). Use vercel/godaddy for any control plane domains if digital twin.",
+      "mcp": "grok_com_linear",
+      "tool": "save_issue",
+      "params": {"title": "63acre Datacentre Phase 1: Site Survey & Power", "team": "infra"}
+    },
+    {
+      "id": "3",
+      "action": "deploy_control_dash",
+      "description": "Use no-proof-deployer or contractor-app patterns to deploy a datacenter monitoring dashboard (grokzilla.site backend connect). Symbiotic with claims/contractor for hosted services.",
+      "mcp": "no-proof-deployer or taskmaster",
+      "tool": "full_production_deploy or execute_task",
+      "params": {"domain": "datacenter.grokzilla.site", "app_type": "monitoring"}
+    },
+    {
+      "id": "4",
+      "action": "monetize_plan",
+      "description": "Define revenue: rent nodes for AI inference, host no-proof-claims/contractor backends with 12% fees via Stripe. Integrate grok_com_gamma for pitch deck to investors/tenants.",
+      "mcp": "grok_com_gamma",
+      "tool": "generate",
+      "params": {"prompt": "Monetization strategy for 63 acre AI datacenter with dragonscale and hosted apps"}
+    },
+    {
+      "id": "5",
+      "action": "track_and_execute",
+      "description": "Save progress to Linear + GitHub. Use /task or execute_task for sub-phases. Verify with podman MCPs if any containerized control software.",
+      "mcp": "grok_com_linear and grok_com_github",
+      "tool": "save_issue and push_files"
+    }
+  ],
+  "symbiotic_protocol": "dragonscale_nodes for compute/ledger -> grokzilla monitoring -> hosted claims/contractor apps for revenue -> no-proof-deployer for rapid deploys of site tools. Minimal input: plot details + budget.",
+  "podman_isolated": true,
+  "example_invocation": "/task: {build_63acre_datacenter; 63acre-plot-details; power=5MW; nodes=100}"
+}

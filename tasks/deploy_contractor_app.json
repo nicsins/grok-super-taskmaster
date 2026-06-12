@@ -1,0 +1,53 @@
+{
+  "name": "deploy_contractor_app",
+  "version": "0.1.0",
+  "description": "Deploy SafeHire contractor app (ai-freelance-escrow-platform) to production for lead finding and monetization. Use no-proof-deployer for full prod with Stripe fees, custom domain via godaddy/vercel. Enable credit system for contractors to buy/redeem leads, flowing into escrow. Second priority after datacenter. Integrate with claims tools for end-to-end (leads -> escrow -> claims?).",
+  "required_params": ["domain"],
+  "optional_params": ["vercel_project", "stripe_mode"],
+  "storage": "github:repo/tasks + local ~/.grok/tasks/",
+  "steps": [
+    {
+      "id": "1",
+      "action": "prepare_prod",
+      "description": "Use no-proof-deployer full_production_deploy or symbiotic on the freelance_contract/ai-freelance-escrow-platform. Add legal/fee docs, Stripe Connect for credits/escrow fees.",
+      "mcp": "no-proof-deployer",
+      "tool": "full_production_deploy",
+      "params": {"repoPath": "/home/nicsins/workdir/freelance_contract/ai-freelance-escrow-platform", "appName": "SafeHire Contractor Leads", "domain": "{{domain}}"}
+    },
+    {
+      "id": "2",
+      "action": "dns_and_domain",
+      "description": "If custom domain (e.g. contractor.grokzilla.site or safehire.com), use godaddy MCP to set records + vercel to add domain. Verify propagation.",
+      "mcp": "godaddy",
+      "tool": "apply_vercel_dns or set_dns_records",
+      "params": {"domain": "{{domain}}"}
+    },
+    {
+      "id": "3",
+      "action": "enable_monetization",
+      "description": "Test credit purchase flow (Stripe), lead posting/redeem. Ensure escrow triggers on accepted proposals. Use Linear to track beta users/leads.",
+      "mcp": "grok_com_linear",
+      "tool": "save_issue",
+      "params": {"title": "SafeHire Prod Deploy - Monetization Live", "project": "contractor-app"}
+    },
+    {
+      "id": "4",
+      "action": "integrate_claims",
+      "description": "Symbiotic: Contractor leads -> escrow -> if dispute/claim, handoff to no-proof-claims.com tools. Update TASK symbiosis.",
+      "mcp": "taskmaster",
+      "tool": "execute_task",
+      "params": {"spec": "{enhance_claims_tools; integrate_safehire}"}
+    },
+    {
+      "id": "5",
+      "action": "grokzilla_connect",
+      "description": "Connect backend to grokzilla.sites dashboard (artifacts/grokzillafiles). Expose lead/escrow metrics.",
+      "mcp": "grok_com_github or custom",
+      "tool": "push_files",
+      "params": {"repo": "grokzilla", "path": "backend/safehire-integration.js"}
+    }
+  ],
+  "symbiotic_protocol": "no-proof-deployer (fees + domain) -> godaddy/vercel (DNS) -> contractor app credits/escrow (monetize leads) -> claims tools (disputes) -> grokzilla (dashboard). Only domain input needed for core deploy.",
+  "podman_isolated": true,
+  "example_invocation": "/task: {deploy_contractor_app; contractor.grokzilla.site; vercel_project=safehire-prod}"
+}

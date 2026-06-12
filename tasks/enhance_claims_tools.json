@@ -1,0 +1,45 @@
+{
+  "name": "enhance_claims_tools",
+  "version": "0.1.0",
+  "description": "Third priority: Polish and scale claims tools (coop-claims-tool / no-proof-claims.com). Enhance with contractor app integration for full pipeline (leads -> contracts -> claims). Use no-proof-deployer patterns, Stripe 12% fees, Twilio, etc. Monetize via production service fees.",
+  "required_params": ["focus_area"],
+  "optional_params": ["integrate_with_contractor"],
+  "storage": "github:repo/tasks + local ~/.grok/tasks/",
+  "steps": [
+    {
+      "id": "1",
+      "action": "audit_and_deploy",
+      "description": "Review coop-claims-tool (no-proof-claims.com). Use no-proof-deployer if re-deploy needed. Verify current prod at https://no-proof-claims.com.",
+      "mcp": "no-proof-deployer",
+      "tool": "full_production_deploy",
+      "params": {"repoPath": "/home/nicsins/coop-claims-tool", "domain": "no-proof-claims.com"}
+    },
+    {
+      "id": "2",
+      "action": "contractor_symbiosis",
+      "description": "Add handoff from SafeHire escrow to claims (e.g. auto-create claim on dispute). Update no-proof-deployer tools and TASKs.",
+      "mcp": "taskmaster",
+      "tool": "save_task_definition",
+      "params": {"name": "claims_from_contractor_lead"}
+    },
+    {
+      "id": "3",
+      "action": "monetize_scale",
+      "description": "Enhance Stripe/Twilio flows. Use grok_com_gamma for user-facing docs. Track metrics in Linear. Enable credit/fee sharing with contractor app.",
+      "mcp": "grok_com_linear",
+      "tool": "save_issue",
+      "params": {"title": "Scale No-Proof-Claims Monetization", "labels": ["claims", "monetize"]}
+    },
+    {
+      "id": "4",
+      "action": "grokzilla_connect",
+      "description": "Expose claims dashboard/metrics to grokzilla.sites backend. Push integration code.",
+      "mcp": "grok_com_github",
+      "tool": "push_files",
+      "params": {"path": "grokzilla-hub/claims-connector.ts"}
+    }
+  ],
+  "symbiotic_protocol": "no-proof-deployer (prod) -> contractor_app (leads/escrow feed) -> claims (dispute resolution + 12% fees) -> grokzilla (unified dashboard).",
+  "podman_isolated": true,
+  "example_invocation": "/task: {enhance_claims_tools; integrate_with_contractor=true}"
+}

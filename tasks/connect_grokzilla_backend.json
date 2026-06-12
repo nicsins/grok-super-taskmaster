@@ -1,0 +1,44 @@
+{
+  "name": "connect_grokzilla_backend",
+  "version": "0.1.0",
+  "description": "Connect grokzilla.sites backend (grokzilla-hub in artifacts) to the ecosystem: datacenter monitoring, contractor app leads/escrow, claims tools. Make it the central dashboard for monetization tracking. Use dragonscale for any distributed backend logic.",
+  "required_params": ["hub_path"],
+  "optional_params": ["connect_datacenter", "connect_claims", "connect_contractor"],
+  "storage": "github:repo/tasks + local ~/.grok/tasks/",
+  "steps": [
+    {
+      "id": "1",
+      "action": "audit_hub",
+      "description": "Explore /home/nicsins/workdir/artifacts/.grok/grokzillafiles/grokzilla-hub and dragonscale for current backend. Read code for connection points.",
+      "mcp": "grok_com_github",
+      "tool": "get_file_contents",
+      "params": {"path": "grokzilla-hub/README.md or main files"}
+    },
+    {
+      "id": "2",
+      "action": "integrate_services",
+      "description": "Add connectors: to contractor app (leads/credits), claims (fees), datacenter (node status via dragonscale). Use taskmaster for orchestration.",
+      "mcp": "taskmaster",
+      "tool": "execute_task",
+      "params": {"spec": "{deploy_contractor_app; ...} or custom"}
+    },
+    {
+      "id": "3",
+      "action": "deploy_hub",
+      "description": "Use no-proof-deployer to prod-deploy updated grokzilla backend if needed. Domain grokzilla.site or sub. Godaddy for DNS.",
+      "mcp": "no-proof-deployer",
+      "tool": "full_production_deploy",
+      "params": {"repoPath": "/home/nicsins/workdir/artifacts/.grok/grokzillafiles/grokzilla-hub", "domain": "grokzilla.site"}
+    },
+    {
+      "id": "4",
+      "action": "monetization_dashboard",
+      "description": "Build views for revenue: contractor credits, claims 12% fees, datacenter node rentals. Gamma for UI mock, Canva for visuals. Linear for feature tracking.",
+      "mcp": "grok_com_gamma and grok_com_canva",
+      "tool": "generate"
+    }
+  ],
+  "symbiotic_protocol": "grokzilla-hub (central) <-> datacenter (dragonscale) <-> contractor_app (leads) <-> claims (fees) <-> taskmaster (orchestration).",
+  "podman_isolated": true,
+  "example_invocation": "/task: {connect_grokzilla_backend; /home/nicsins/workdir/artifacts/.grok/grokzillafiles/grokzilla-hub; connect_datacenter=true; connect_claims=true}"
+}
