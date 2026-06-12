@@ -1,0 +1,70 @@
+{
+  "name": "forge_and_wire_mcp",
+  "description": "General purpose: detect or specify missing service, run Connector Forge (python3 connector_forge.py --forge-and-register-podman --service X --non-interactive), auto-build podman image for the helper MCP, register in ~/.grok/config.toml via podman stdio (add_podman_mcp logic), emit dedicated TASK json like *_use.task.json, update connector_index.json. Supports podman MCPs for godaddy/taskmaster/no-proof style. Compact {name; param} or /task invocation. Real files + execution verified.",
+  "params_schema": {
+    "service": {
+      "type": "string",
+      "required": true,
+      "description": "Service name to forge e.g. 'no_proof_deployer_helper' or 'custom_api'"
+    },
+    "description": {
+      "type": "string",
+      "required": false,
+      "description": "Description for the connector"
+    },
+    "resource_type": {
+      "type": "string",
+      "required": false,
+      "description": "web_api | filesystem | database | app | other (defaults web_api per forge)"
+    },
+    "auth_method": {
+      "type": "string",
+      "required": false,
+      "description": "api_key | oauth2 | basic_auth | service_account | none | other"
+    },
+    "base_url": {
+      "type": "string",
+      "required": false,
+      "description": "Base URL/root for the service"
+    },
+    "podman_image": {
+      "type": "string",
+      "required": false,
+      "description": "Target image tag e.g. localhost/foo-mcp:latest"
+    },
+    "non_interactive": {
+      "type": "boolean",
+      "required": false,
+      "description": "true for TASK automation (default)"
+    }
+  },
+  "steps": [
+    {
+      "action": "run_forge",
+      "description": "cd /home/nicsins/workdir/connector_forge; python3 connector_forge.py --forge-and-register-podman --service {{service}} --non-interactive (with other params). Produces generated_connectors/<service>/ + mcp server py + Dockerfile stub, builds image, updates index."
+    },
+    {
+      "action": "register_podman_mcp",
+      "description": "Ensure ~/.grok/config.toml updated under [mcp_servers.<sanitized_service>] with podman run -i --rm ... image (use buildPodmanStdioConfig logic or direct write like current no_proof section). Matches add_podman_mcp TASK."
+    },
+    {
+      "action": "emit_task_definition",
+      "description": "Write ~/.grok/tasks/<service>_use.task.json (compact style + full steps for search/use). Update any explorer."
+    },
+    {
+      "action": "verify",
+      "description": "podman images confirm new image; grep config for section; search_tool for new tools if MCP reloaded; run /home/nicsins/workdir/bin/task with new TASK if available."
+    },
+    {
+      "action": "publish_track",
+      "description": "Optional push generated/ + new TASK to github:nicsins/grok-super-taskmaster via push_files; linear/github comment."
+    }
+  ],
+  "version": "1.0.0",
+  "requires_mcps": ["grok_com_github"],
+  "storage": "local + github:nicsins/grok-super-taskmaster",
+  "desired_effect_style": true,
+  "example_invocation": "{forge_and_wire_mcp; service=my_new_api; description=Access to MyAPI; base_url=https://api.my.com; non_interactive=true}",
+  "ties_to": "connector_forge.py (verified run), add_podman_mcp.json, no_proof_deployer_helper_use.task.json (emitted example), wire_connector_forge.json, forge_new_connector.json, forge_and_register_missing_connector.json, podman images/builds, ~/.grok/config.toml",
+  "symbiotic": "Core for issues #3 (forge). Enables dynamic extension of podman MCP swarm (no-proof, godaddy, vercel, taskmaster). Pairs with full_no_proof_deploy, execute_symbiotic_task, register_podman_mcp. Supports /task minimal + explorer in mcp-server."
+}

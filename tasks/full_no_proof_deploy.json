@@ -1,0 +1,66 @@
+{
+  "name": "full_no_proof_deploy",
+  "description": "High-level symbiotic no-proof production deploy orchestrator. Uses the no-proof-deployer podman MCP (localhost/no-proof-deployer:latest) + forged no_proof_deployer_helper + godaddy-mcp/vercel_helper/taskmaster for full real-API deploys: domain connect (GoDaddy DNS), Vercel/Neon deploy, no-proof verification. Minimal input via compact {name; param} style or /task wrapper. References podman MCPs registered in ~/.grok/config.toml. Real execution only; chains to add_podman_mcp patterns, forge outputs, and existing connect_domain/production_domain_connect TASKs.",
+  "params_schema": {
+    "domain": {
+      "type": "string",
+      "required": true,
+      "description": "Target domain e.g. 'example.com' for DNS + deploy"
+    },
+    "vercel_project": {
+      "type": "string",
+      "required": false,
+      "description": "Vercel project name or id for deploy target"
+    },
+    "neon_project": {
+      "type": "string",
+      "required": false,
+      "description": "Neon DB project for backend if needed"
+    },
+    "dns_records": {
+      "type": "array",
+      "items": {"type": "object"},
+      "required": false,
+      "description": "Optional DNS records to set via GoDaddy (e.g. [{type:'A', name:'@', data:'1.2.3.4'}])"
+    },
+    "deploy_path": {
+      "type": "string",
+      "required": false,
+      "description": "Local or git path for artifact to deploy (defaults to current context)"
+    },
+    "non_interactive": {
+      "type": "boolean",
+      "required": false,
+      "description": "Skip prompts, use provided params + defaults for full automation. Default true."
+    }
+  },
+  "steps": [
+    {
+      "action": "verify_podman_mcps",
+      "description": "Confirm via config + search_tool that no_proof_deployer_helper, vercel_helper, godaddy (and taskmaster) podman MCPs are registered and tools available (e.g. no_proof_deployer_helper__execute_action, godaddy__* ). Use podman images to assert images present."
+    },
+    {
+      "action": "prepare_domain_connect",
+      "description": "Chain to production_domain_connect.task.json or connect_domain patterns: use godaddy-mcp podman for DNS setup if dns_records or default apex/CNAME for vercel deploy. Call real godaddy tools via use_tool after search."
+    },
+    {
+      "action": "invoke_no_proof_deployer",
+      "description": "Use podman MCP for no-proof-deployer (or its helper): run real deploy sequence for vercel + godaddy verification + neon if provided. Pass domain/vercel_project etc. Execute via /home/nicsins/workdir/bin/task or direct use_tool on registered mcp. Capture logs for no-proof (no manual proof needed)."
+    },
+    {
+      "action": "symbiotic_verify_and_report",
+      "description": "Post-deploy: query godaddy for DNS propagation, vercel for deployment status, taskmaster for logging. Emit/update TASK or GitHub/Linear record. Use no_proof_deployer_helper for verification steps."
+    },
+    {
+      "action": "publish_and_track",
+      "description": "If success: use publish_connector_to_github if new assets, track_in_linear_and_github or issue_write on nicsins/grok-super-taskmaster. Update SWARM_STATUS.md via push_files."
+    }
+  ],
+  "version": "1.0.0",
+  "requires_mcps": ["no_proof_deployer_helper", "vercel_helper", "godaddy", "taskmaster"],
+  "storage": "local + github:nicsins/grok-super-taskmaster",
+  "desired_effect_style": true,
+  "example_invocation": "{full_no_proof_deploy; domain=example.com; vercel_project=my-site; neon_project=my-db; non_interactive=true}",
+  "ties_to": "no-proof-deployer (podman build verified), connector_forge no_proof_deployer_helper (image+config+TASK), add_podman_mcp, production_domain_connect.task.json, connect_domain, godaddy-mcp, vercel_helper-mcp, taskmaster-mcp, /task wrapper, ~/.grok/config.toml podman sections",
+  "symbiotic": "Complements forge_and_wire_mcp, execute_symbiotic_task, register_podman_mcp. Enables 'one compact command for full live deploy + DNS + no-proof' vision. Podman isolated for security. Chains with existing TaskMaster /task high-level minimal input."
+}

@@ -1,0 +1,41 @@
+{
+  "name": "execute_symbiotic_task",
+  "description": "High-level entrypoint for symbiotic TaskMaster execution via /home/nicsins/workdir/bin/task wrapper or direct. Supports compact {name; param} syntax for any registered TASK (including forged podman ones like no_proof_deployer_helper_use, full_no_proof_deploy, connect_domain etc). Orchestrates across taskmaster-mcp podman + other MCPs (godaddy, vercel_helper, no_proof) for minimal-input power: list tasks, save defs, run deploys, forge, track. Verifies symbiosis between components.",
+  "params_schema": {
+    "task_spec": {
+      "type": "string",
+      "required": true,
+      "description": "Compact spec e.g. '{full_no_proof_deploy; domain=foo.com; vercel_project=bar}' or '{list_available_tasks;}' or '{connect_domain; domain=example.com}'"
+    },
+    "context": {
+      "type": "object",
+      "required": false,
+      "description": "Optional extra context/env for the task execution"
+    }
+  },
+  "steps": [
+    {
+      "action": "parse_compact_spec",
+      "description": "Parse {task_name; key=val; ...} into name + params. Lookup definition from ~/.grok/tasks/<name>.json or .task.json"
+    },
+    {
+      "action": "load_taskmaster_mcp",
+      "description": "Use podman taskmaster-mcp:latest (registered or direct) or /task sugar to execute. Confirm via search if tools like taskmaster__list_available_tasks surfaced. Run the steps defined in the TASK json (real actions: podman calls, use_tool on helpers, file writes)."
+    },
+    {
+      "action": "cross_mcp_symbiosis",
+      "description": "During execution, chain to other podman MCPs e.g. godaddy for DNS, no_proof_deployer_helper for deploy proof, vercel for frontend. Use search_tool + use_tool on connected (github for push) as needed."
+    },
+    {
+      "action": "verify_and_persist",
+      "description": "Capture output/exit codes (must be 0 for success). Update config/tasks if dynamic. Write status to /tmp/grok_email/sent/ or GitHub issue. Assert no defects."
+    }
+  ],
+  "version": "1.0.0",
+  "requires_mcps": ["taskmaster", "no_proof_deployer_helper", "godaddy", "vercel_helper", "grok_com_github"],
+  "storage": "local + github:nicsins/grok-super-taskmaster",
+  "desired_effect_style": true,
+  "example_invocation": "{execute_symbiotic_task; task_spec={full_no_proof_deploy; domain=test.com; non_interactive=true}}",
+  "ties_to": "/home/nicsins/workdir/bin/task (real wrapper), taskmaster-mcp podman image, all ~/.grok/tasks/*.json (new + old), add_podman_mcp, forge outputs, connect_domain.task.json, production_domain_connect.task.json",
+  "symbiotic": "The glue for overall polish + issues. Powers high-level /task with new no-proof/forge capabilities. Works with register_podman_mcp to auto-surface, full_no_proof_deploy for deploys, forge_and_wire_mcp for extension. Enables explorer + storage on GitHub."
+}

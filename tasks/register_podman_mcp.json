@@ -1,0 +1,59 @@
+{
+  "name": "register_podman_mcp",
+  "description": "Standalone registration of any podman-isolated MCP (godaddy-mcp, taskmaster-mcp, no-proof-deployer, forged helpers like no_proof_deployer_helper-mcp) into ~/.grok/config.toml. Uses desired-effect (name + image + envs). Implements/uses buildPodmanStdioConfig logic (from claude research), writes [mcp_servers.<name>], makes discoverable. Reusable; called by forge_and_wire and add_podman_mcp. Compact invocation style supported.",
+  "params_schema": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "description": "MCP name e.g. 'no_proof_deployer_helper' or 'godaddy'"
+    },
+    "image": {
+      "type": "string",
+      "required": true,
+      "description": "Podman image e.g. 'localhost/no_proof_deployer_helper-mcp:latest'"
+    },
+    "env_vars": {
+      "type": "array",
+      "items": {"type": "string"},
+      "required": false,
+      "description": "Env strings e.g. ['GODADDY_API_KEY=xxx', 'SERVICE_TOKEN=...']"
+    },
+    "extra_run_args": {
+      "type": "array",
+      "items": {"type": "string"},
+      "required": false,
+      "description": "Extra podman args e.g. ['-v', '/home/nicsins/.grok/tasks:/tasks']"
+    },
+    "startup_timeout_sec": {
+      "type": "number",
+      "required": false,
+      "description": "Timeout, default 30"
+    }
+  },
+  "steps": [
+    {
+      "action": "build_stdio_config",
+      "description": "Construct {command: 'podman', args: ['run', '-i', '--rm', ... -e KEY=val, image ] } using verified pattern from current config (vercel/no_proof sections) and claude-code podman.ts research."
+    },
+    {
+      "action": "persist_to_config",
+      "description": "Use write/search_replace on /home/nicsins/.grok/config.toml to add or update [mcp_servers.<name>] section with command/args/startup_timeout_sec. Real file edit."
+    },
+    {
+      "action": "verify_registration",
+      "description": "Re-read config; run podman images to confirm image; if MCP server process reloads, use search_tool for <name>__ tools. Test basic podman run -i --rm <image> if interactive possible. Confirm in ls ~/.grok/tasks/ if TASK emitted."
+    },
+    {
+      "action": "integrate_with_taskmaster",
+      "description": "Ensure visible to /home/nicsins/workdir/bin/task and taskmaster-mcp (list_available_tasks will include new if TASK json present). Chain to execute_symbiotic_task."
+    }
+  ],
+  "version": "1.0.0",
+  "requires_mcps": [],
+  "storage": "local + github:nicsins/grok-super-taskmaster",
+  "desired_effect_style": true,
+  "example_invocation": "{register_podman_mcp; name=no_proof_deployer_helper; image=localhost/no_proof_deployer_helper-mcp:latest; env_vars=[\"SERVICE_TOKEN=auto\"]}",
+  "ties_to": "add_podman_mcp.json (core pattern), forge_and_wire_mcp, no_proof_deployer_helper section in config (real example), ~/.grok/config.toml, podman build outputs, taskmaster-mcp/godaddy-mcp sources",
+  "podman_isolated": true,
+  "symbiotic": "Foundation for all podman swarm (issues #2/3/4). Used by forge outputs, full_no_proof_deploy, execute_symbiotic_task. Enables dynamic addition of mcp-server enhancements, explorer, GitHub storage."
+}
