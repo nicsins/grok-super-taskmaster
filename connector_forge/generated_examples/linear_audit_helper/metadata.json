@@ -1,0 +1,17 @@
+{
+  "name": "linear_audit_helper",
+  "description": "Auto-forged linear_audit_helper connector for MCP/podman integration with TaskMaster",
+  "resource_type": "web_api",
+  "auth_method": "api_key",
+  "base_url": "https://api.vercel.com",
+  "supported_actions": [
+    "read",
+    "write",
+    "search",
+    "health_check"
+  ],
+  "rate_limit": "none",
+  "special_notes": "",
+  "author": "Grok + Nic",
+  "status": "draft"
+}

@@ -1,0 +1,76 @@
+{
+  "name": "forge_new_connector",
+  "description": "End-to-end: forge a new connector for any service (web_api, node/TS etc), build real podman MCP image, register in ~/.grok/config.toml (with modern podman field + command), emit high-quality use_*.json TASK for taskmaster /task + list_available_tasks. Uses the production ConnectorForge at /home/nicsins/workdir/connector_forge/connector_forge.py . After: the new MCP tools (e.g. xxx__health_check) + TASK are immediately usable. This is the meta-tool enabling 'instantly turn any need into live podman + /task callable thing'.",
+  "params_schema": {
+    "service": {
+      "type": "string",
+      "required": true,
+      "description": "Name of service e.g. 'linear_audit_helper' or 'my_node_api' or 'gamma_doc_helper'"
+    },
+    "description": {
+      "type": "string",
+      "required": false,
+      "description": "Short desc (defaults to auto-forged ...)"
+    },
+    "resource_type": {
+      "type": "string",
+      "required": false,
+      "description": "web_api | filesystem | database | app | other"
+    },
+    "auth_method": {
+      "type": "string",
+      "required": false,
+      "description": "api_key | oauth2 | none | ..."
+    },
+    "base_url": {
+      "type": "string",
+      "required": false,
+      "description": "Base for the API if web"
+    },
+    "supported_actions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "required": false,
+      "description": "e.g. ['read','write','health_check']"
+    },
+    "language": {
+      "type": "string",
+      "required": false,
+      "description": "python (default, FastMCP) or node (for TS MCPs like no-proof-deployer)"
+    },
+    "non_interactive": {
+      "type": "boolean",
+      "required": false,
+      "description": "true for automation"
+    }
+  },
+  "steps": [
+    {
+      "action": "cd /home/nicsins/workdir/connector_forge",
+      "note": "Use canonical workdir/ one (primary per AGENTS)"
+    },
+    {
+      "action": "run_real_forge",
+      "command": "python3 connector_forge.py --forge-and-register-podman --service {{service}} --non-interactive --language {{language|python}}",
+      "description": "Real execution: generates connector + (py or node) MCP files in generated_connectors/, podman build (real exit 0 image), appends to ~/.grok/config.toml with podman structured, writes use_*.json TASK"
+    },
+    {
+      "action": "verify_artifacts",
+      "note": "podman images | grep {{service}}-mcp ; cat ~/.grok/config.toml | grep -A5 mcp_servers.{{service}} ; cat ~/.grok/tasks/use_{{service}}.json ; podman run --rm --entrypoint python3 localhost/{{service}}-mcp:latest -c 'test import health'"
+    },
+    {
+      "action": "reload_mcps_and_test",
+      "note": "Restart/reload MCPs in grok; then search_connected_tools for {{service}} or use taskmaster__list_available_tasks ; invoke via /task {use_{{service}}; health_check} or direct use_tool"
+    },
+    {
+      "action": "report_to_taskmaster",
+      "note": "New connector + TASK now live, symbiotic, podman isolated, instantly available for future TASKs. Update connector_index too via the run."
+    }
+  ],
+  "version": "1.0.0",
+  "source": "Created by ForgeImplementer for GitHub issue #3 wiring + research vision. Uses real forge_and_wire_to_podman_mcp_add (enhanced with language, modern toml, robust server, clean TASK names)",
+  "podman_mcp": "uses the forge itself + produces new ones",
+  "minimal_input_example": "{forge_new_connector; my_new_api}",
+  "language_support": ["python", "node"],
+  "ties_to": "/home/nicsins/workdir/connector_forge/connector_forge.py , ~/.grok/tasks/*.json , taskmaster-mcp , grok config toml"
+}
