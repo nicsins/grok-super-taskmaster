@@ -1,0 +1,53 @@
+{
+  "name": "safehire_lead_gen_agency",
+  "version": "0.1.0",
+  "description": "Build and deploy sophisticated 'Office of Agents' on top of SafeHire for active, high-conversion lead generation. Complex adaptive organic workflows: analyze target areas (e.g., Austin metro for home improvement), determine best-suited zones for desired leads, then run consistent ever-evolving agency of highly empathic sales agents (Grok-powered, Dragonscale temporal/collective memory) that generate leads almost always converting to clients. Ties to SafeHire credits/escrow (monetization), claims tools, grokzilla hub, TaskMaster orchestration, codespace-vibe-coder for collab. Use no-proof-deployer for prod release. Real executable only, verified via check-work + runs. Priorities: datacenter-adjacent infra, contractor app release, claims symbiosis.",
+  "required_params": ["target_region"],
+  "optional_params": ["categories", "conversion_target", "agent_swarm_size"],
+  "storage": "github:repo/tasks + local ~/.grok/tasks/ + dragonscale ledger",
+  "steps": [
+    {
+      "id": "1",
+      "action": "area_analysis_workflow",
+      "description": "Build adaptive organic workflow (Dragonscale temporal fabric + graph) to analyze target areas (e.g., zip codes, cities like Austin). Score suitability for desired leads (home_improvement, interior_design, design_planning) based on demand signals (from data/Supabase leads history, public trends via MCPs), competition (current leads in SafeHire), demographics, conversion potential. Output ranked list of best areas. Ever-evolving: log outcomes to ledger for learning.",
+      "mcp": "taskmaster + dragonscale",
+      "tool": "execute_task + bootstrap/temporal_fabric",
+      "params": {"target_region": "{{target_region}}", "categories": "{{categories or ['home_improvement']}}"}
+    },
+    {
+      "id": "2",
+      "action": "empathic_sales_agency",
+      "description": "Launch consistent ever-evolving agency of highly empathic sales agents (Grok prompts for empathy, qualification, follow-up; Dragonscale collective intelligence + temporal context for organic adaptation based on past interactions/outcomes). Agents analyze areas from step 1, generate/acquire high-quality leads (e.g., via simulated outreach or integrated data), qualify (budget, timeline, fit), handoff to SafeHire (POST /api/leads with AI-enhanced JSON, credit logic). Aim for near-100% conversion to clients via escrow. Adaptive: update agent 'personalities'/prompts/memory from redemption/escrow success rates.",
+      "mcp": "taskmaster + grok_com_gamma + dragonscale",
+      "tool": "execute_task + generate + agents",
+      "params": {"swarm_size": "{{agent_swarm_size or 5}}", "empathy_focus": "high (listen, build trust, solve pain)"}
+    },
+    {
+      "id": "3",
+      "action": "safehire_integration_release",
+      "description": "Enhance SafeHire for agent-driven leads: add real Stripe for credit purchases (replace mocks), API endpoint for agent ingestion (bypass customer post if high-quality), track conversions. Prep and deploy to prod via no-proof-deployer (Godaddy domain, Vercel, fees). Use codespace-vibe-coder for collaborative building of workflows/agents. Symbiosis: leads -> credits -> escrow -> claims if needed.",
+      "mcp": "no-proof-deployer + codespace-vibe-coder + taskmaster",
+      "tool": "full_production_deploy + execute_task",
+      "params": {"domain": "safehire.grokzilla.site or similar", "app_path": "/home/nicsins/workdir/freelance_contract/ai-freelance-escrow-platform"}
+    },
+    {
+      "id": "4",
+      "action": "grokzilla_dragonscale_hub",
+      "description": "Centralize 'Office of Agents' in grokzilla-hub (add /agents dashboard for monitoring swarms, workflows, conversion metrics). Integrate Dragonscale ledger for persistent evolving memory across agents. Use TaskMaster for orchestration (high-level TASKs spawn sub-workflows). Ever-adaptive: feedback from SafeHire (redemptions, completed projects) updates agents via temporal fabric.",
+      "mcp": "grok_com_github + grok_com_linear + dragonscale",
+      "tool": "push_files + save_issue + temporal_fabric",
+      "params": {"hub_path": "/home/nicsins/workdir/artifacts/.grok/grokzillafiles/grokzilla-hub"}
+    },
+    {
+      "id": "5",
+      "action": "monetize_verify_iterate",
+      "description": "Track everything in Linear (initiatives for agency phases). Generate docs/pitches with grok_com_gamma. Verify high conversion (test workflows end-to-end, check SafeHire leads -> escrow success; check-work loops; podman runs). Use codespace-vibe-coder for ongoing collab on refinements. Deploy updates via no-proof. Goal: organic, adaptive system generating leads that almost always convert, feeding SafeHire revenue (credits, 5-30% fees).",
+      "mcp": "grok_com_linear + grok_com_gamma + check-work + taskmaster",
+      "tool": "save_initiative + generate + execute_task",
+      "params": {"focus": "high-conversion leads for SafeHire release"}
+    }
+  ],
+  "symbiotic_protocol": "Dragonscale (agents/temporal/ledger for organic evolving) + TaskMaster (orchestrate complex workflows) + Grokzilla (hub/monitoring) + SafeHire (platform for leads->escrow) + no-proof-deployer (prod release) + codespace-vibe-coder (collab building) + MCPs (github/linear/vercel/godaddy/gamma for data/deploys/tracking). Workflows analyze -> target -> empathic generate -> handoff -> learn -> evolve. Minimal input: target_region. Real only, verified execution.",
+  "podman_isolated": true,
+  "example_invocation": "/task: {safehire_lead_gen_agency; austin-tx; categories=home_improvement,interior_design; conversion_target=90%}"
+}
