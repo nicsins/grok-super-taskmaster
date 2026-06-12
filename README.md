@@ -7,11 +7,20 @@ Fills the exact gaps identified in exhaustive workspace research (Connector Forg
 - No Podman/container isolation for MCPs (direct stdio only).
 - No "desired effect only" + repeatable multi-connector TASKs (current tasks are background units; skills are explicit prompt orchestrators).
 
+## Published Source
+
+The actual source of the new connectors is published in this repository under the subdirectories:
+
+- `godaddy-mcp/` (server.py, Dockerfile, README.md)
+- `taskmaster-mcp/` (server.py, Dockerfile, README.md)
+
+View or clone from https://github.com/nicsins/grok-super-taskmaster . The subdir READMEs contain full usage, build, and integration details.
+
 ## What Was Built (All Real, Verified, Executable)
 
-- **godaddy-mcp** (`workdir/godaddy-mcp/`): Full Python MCP (mcp[cli] + httpx) with `apply_vercel_dns(domain)` (real PATCH to GoDaddy API for Vercel A @ + CNAME www), list/get/update records, verify, nameservers. Podman Dockerfile. Symbiotic effector for domain connects.
+- **godaddy-mcp** (`godaddy-mcp/`): Full Python MCP (mcp[cli] + httpx) with `apply_vercel_dns(domain)` (real PATCH to GoDaddy API for Vercel A @ + CNAME www), list/get/update records, verify, nameservers. Podman Dockerfile. Symbiotic effector for domain connects.
 
-- **taskmaster-mcp** (`workdir/taskmaster-mcp/`): High-level TASK engine. `execute_task("{connect_domain; my-site.blah}")` does real symbiotic flow (godaddy DNS + optional vercel project domain reg via API + verify). Registry: local `~/.grok/tasks/`, GitHub push/fetch (GITHUB_TOKEN), memory. Built-in + savable TASK defs. Podman native.
+- **taskmaster-mcp** (`taskmaster-mcp/`): High-level TASK engine. `execute_task("{connect_domain; my-site.blah}")` does real symbiotic flow (godaddy DNS + optional vercel project domain reg via API + verify). Registry: local `~/.grok/tasks/`, GitHub push/fetch (GITHUB_TOKEN), memory. Built-in + savable TASK defs. Podman native.
 
 - **TUI Integration for Super Grok** (`claude-code/src/...`):
   - `grok mcp add <name> --podman-image localhost/godaddy-mcp:latest -e KEY=...` (new podman.ts helper + addCommand.ts updates). Stores as normal stdio podman run config (works with existing client.ts transport).
@@ -30,10 +39,11 @@ Fills the exact gaps identified in exhaustive workspace research (Connector Forg
 
 ## Usage in Super Grok
 
-1. Build images (podman).
-2. `grok mcp add godaddy --podman-image ... -e ...`
-3. `grok mcp add taskmaster --podman-image ... -e ...`
-4. `/task: {connect_domain; your-domain.com}` (or direct wrapper, or use_tool taskmaster__execute_task).
+1. Clone this repo: `git clone https://github.com/nicsins/grok-super-taskmaster.git`
+2. Build images (podman) from the published subdirs.
+3. `grok mcp add godaddy --podman-image ... -e ...`
+4. `grok mcp add taskmaster --podman-image ... -e ...`
+5. `/task: {connect_domain; your-domain.com}` (or direct wrapper, or use_tool taskmaster__execute_task).
 
 With creds: real DNS updates + vercel registration + logs. Deduce from gist, exact url required.
 
@@ -47,7 +57,7 @@ With creds: real DNS updates + vercel registration + logs. Deduce from gist, exa
 ## Research Summary (from explore subagent)
 Full workspace scan confirmed gaps and opportunities. Connector Forge for auto-generating more. Dragonscale protocols/connectors for app control. Mom for memory. claude-code MCP spawning (stdio/http; now extended for podman via add). Skills vs tasks distinction addressed by effect-only TASK layer on top of podman MCPs.
 
-See workdir/*-mcp/READMEs, the skill, claude-code changes for details. All per AGENTS.md: real files, podman runnable, verified execution, no sim.
+See `godaddy-mcp/README.md` and `taskmaster-mcp/README.md` in this repo (the skill, claude-code changes for details). All per AGENTS.md: real files, podman runnable, verified execution, no sim.
 
 Created as part of TaskMaster General mandate to review connectors/skills, turn into podman MCPs, create /task multi-connector high-level tasks, apply useful tools, save to github/memory, make minimal-input for Super Grok.
 
