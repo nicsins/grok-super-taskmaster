@@ -1,0 +1,1 @@
+Chat + WS extension for grokzilla-hub (enables chat and code together)

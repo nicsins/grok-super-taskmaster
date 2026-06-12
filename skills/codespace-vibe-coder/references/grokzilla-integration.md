@@ -1,0 +1,1 @@
+Details on hub + chat collab

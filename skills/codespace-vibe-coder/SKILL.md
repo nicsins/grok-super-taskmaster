@@ -1,0 +1,1 @@
+Full SKILL.md from ~/.grok/skills/codespace-vibe-coder/SKILL.md (see local for latest)
