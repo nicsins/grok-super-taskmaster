@@ -1,0 +1,13 @@
+{
+  "name": "enhance_mcp_explorer",
+  "description": "Enhance the claude-code mcp-server (codemaster explorer) to expose tools/resources for the new TaskMaster system (list TASKs, get definition, suggest podman MCP, execute spec). Make the new connectors and /task useful inside the Super Grok source explorer MCP itself.",
+  "params_schema": {},
+  "steps": [
+    {"action": "read mcp-server/src/server.ts and related"},
+    {"action": "add tools: list_available_tasks, get_task_definition, execute_task_spec, list_podman_mcps"},
+    {"action": "add resources for TASK registry and podman configs"},
+    {"action": "rebuild and test MCP (stdio or http)"},
+    {"action": "verify with search_tool/use_tool if registered"}
+  ],
+  "version": "1.0.0"
+}

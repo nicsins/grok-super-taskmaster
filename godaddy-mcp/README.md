@@ -17,7 +17,7 @@ Full-featured MCP server exposing tools to list, inspect, and mutate domains + D
 ## Build & Run (Podman)
 
 ```bash
-cd godaddy-mcp
+cd workdir/godaddy-mcp
 podman build -t localhost/godaddy-mcp:latest .
 
 # With real credentials (never commit)
@@ -36,8 +36,6 @@ Add to `~/.grok/config.toml` (or project .grok/config.toml):
 command = "podman"
 args = ["run", "-i", "--rm", "-e", "GODADDY_API_KEY", "-e", "GODADDY_API_SECRET", "localhost/godaddy-mcp:latest"]
 startup_timeout_sec = 45
-tool_timeout_sec = 120
-enabled = true
 ```
 
 Then in the TUI:

@@ -32,14 +32,14 @@ Additional optional: vercel_project_id_or_slug, team_id for full vercel symbiosi
 
 - **save_task** — Persist new repeatable TASK definitions.
 
-You (or the model) can `save_task_definition` with a full JSON def, optionally `persist_to_github=true` (requires GITHUB_TOKEN). The TASK then lives in the github repo under tasks/ and can be loaded with `execute_task_from_github`.
+You (or the model) can `save_task_definition` with a clean JSON def, optionally `persist_to_github=true` (requires GITHUB_TOKEN). The TASK then lives in the github repo under tasks/ and can be loaded with `execute_task_from_github`.
 
 This is exactly "these tasks can be saved in files in google drive and in groks memory for ease of access even can reside in a github repo for tasks that can connect through a github tools".
 
 ## Podman Usage (the required way)
 
 ```bash
-cd taskmaster-mcp
+cd workdir/taskmaster-mcp
 podman build -t localhost/taskmaster-mcp:latest .
 
 # Full power (godaddy + vercel + github persistence)
@@ -83,6 +83,7 @@ Reciprocating: vercel deployment side can inform (or hardcode known) the targets
 ## Making Skills "Desired Effect Only"
 
 Any existing skill that previously required step-by-step can now be wrapped:
+
 1. Turn the repeatable part into a TASK definition (save_task_definition).
 2. Or expose the skill logic inside a dedicated MCP tool in a podman image.
 3. The caller (human or model) just says the outcome + params.

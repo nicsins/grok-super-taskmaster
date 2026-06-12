@@ -1,0 +1,13 @@
+{
+  "name": "wire_connector_forge",
+  "description": "Wire Connector Forge (from research: workdir/connector_forge and artifacts) to mcp add and TASK system. So missing connectors (e.g. more domain/godaddy variants) can be forged and auto-registered as Podman MCPs via /task or manager.",
+  "params_schema": {},
+  "steps": [
+    {"action": "explore connector_forge code and templates"},
+    {"action": "create TASK or script that runs forge for a service then mcp add --podman"},
+    {"action": "integrate with taskmaster registry"},
+    {"action": "test end-to-end with a sample (e.g. new vercel helper)"},
+    {"action": "document in research-aligned README"}
+  ],
+  "version": "1.0.0"
+}

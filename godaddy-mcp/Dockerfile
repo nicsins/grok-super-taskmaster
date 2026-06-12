@@ -6,14 +6,9 @@ LABEL org.opencontainers.image.source="https://github.com/nicsins/grok-super-tas
 
 WORKDIR /app
 
-# Install runtime deps
 RUN pip install --no-cache-dir "mcp[cli]" httpx pydantic
 
-# Copy server
 COPY server.py /app/server.py
-
-# Make executable
 RUN chmod +x /app/server.py
 
-# Default: run the stdio MCP server
 ENTRYPOINT ["python", "/app/server.py"]
